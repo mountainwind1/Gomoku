@@ -54,6 +54,12 @@ const chooseModal      = document.getElementById('choose-modal');
 const chooseList       = document.getElementById('choose-list');
 const noIdleMsg        = document.getElementById('no-idle-msg');
 const closeChooseBtn   = document.getElementById('close-choose-btn');
+// AI modal
+const aiBtn            = document.getElementById('ai-btn');
+const aiModal          = document.getElementById('ai-modal');
+const closeAiModalBtn  = document.getElementById('close-ai-modal');
+// Undo
+const undoBtn          = document.getElementById('undo-btn');
 // Incoming challenge notification
 const challengeNotif   = document.getElementById('challenge-notif');
 const notifMsg         = document.getElementById('notif-msg');
@@ -70,6 +76,7 @@ let nameConfirmed   = false;
 let statusState     = { key: 'initialStatus', cls: '', vars: {} };
 let lastOnline      = { count: 0, users: [] };
 let pendingChallengerId = null; // set when we received a challenge
+let isAIGame            = false;
 
 // ── i18n helpers ───────────────────────────────────────────
 function _renderStatus() {
@@ -108,8 +115,8 @@ document.addEventListener('langchange', () => {
     const saved = _savedName();
     if (saved) returningMsg.textContent = t('welcomeBack', { name: saved });
   }
-  // Re-render choose-list if open
   if (!chooseModal.hidden) renderChooseList();
+  updateUndoBtn();
 });
 
 _renderStatus();
@@ -129,10 +136,12 @@ function setStatus(key, cls = '', vars = {}) {
 function setMatchBtnsEnabled(on) {
   randomMatchBtn.disabled = !on;
   challengeBtn.disabled   = !on;
+  aiBtn.disabled          = !on;
 }
 function setSearching(on) {
   randomMatchBtn.disabled = on;
   challengeBtn.disabled   = on;
+  aiBtn.disabled          = on;
   spinner.hidden          = !on;
 }
 function setBoardTurnClass(sym) { boardEl.className = sym ? `turn-${sym}` : ''; }
@@ -191,7 +200,19 @@ function endGame() {
   setBoardTurnClass(null);
   setMatchBtnsEnabled(true);
   cancelChallengeBtn.hidden = true;
+  undoBtn.hidden = true;
 }
+
+// Show/hide undo button depending on game state
+function updateUndoBtn() {
+  if (!isAIGame || !myTurn) { undoBtn.hidden = true; return; }
+  const stones = board.filter(x => x !== null).length;
+  undoBtn.hidden   = false;
+  undoBtn.disabled = stones < 2;
+}
+
+function openAiModal()  { aiModal.hidden = false; }
+function closeAiModal() { aiModal.hidden = true;  }
 
 // ── Connection status ──────────────────────────────────────
 function setConnected(online) {
@@ -359,9 +380,35 @@ socket.on('challenge-cancelled', ({ name }) => {
 
 // ── Button listeners ───────────────────────────────────────
 randomMatchBtn.addEventListener('click', startRandomSearch);
+
+aiBtn.addEventListener('click', openAiModal);
+closeAiModalBtn.addEventListener('click', closeAiModal);
+aiModal.addEventListener('click', e => { if (e.target === aiModal) closeAiModal(); });
+
+// Difficulty selection: emit play-vs-ai and start the game
+document.querySelectorAll('.diff-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const difficulty = btn.dataset.diff;
+    closeAiModal();
+    isAIGame = true;
+    setSearching(true);
+    cancelChallengeBtn.hidden = true;
+    playAgainBtn.hidden = true;
+    mySymbolEl.hidden   = true;
+    undoBtn.hidden      = true;
+    resetBoard();
+    setStatus('searching');
+    socket.emit('play-vs-ai', { difficulty });
+  });
+});
+
+undoBtn.addEventListener('click', () => socket.emit('undo-move'));
+
 playAgainBtn.addEventListener('click', () => {
+  isAIGame            = false;
   playAgainBtn.hidden = true;
   mySymbolEl.hidden   = true;
+  undoBtn.hidden      = true;
   resetBoard();
   setMatchBtnsEnabled(true);
   setStatus('initialStatus');
@@ -382,16 +429,18 @@ cells.forEach(cell => {
 // ── Socket: game events ────────────────────────────────────
 socket.on('waiting', () => setStatus('waiting'));
 
-socket.on('game-start', ({ symbol, roomId: rid }) => {
+socket.on('game-start', ({ symbol, roomId: rid, isAI: ai = false }) => {
   mySymbol = symbol;
   roomId   = rid;
   myTurn   = symbol === 'B';
+  isAIGame = ai;
   setSearching(false);
   setMatchBtnsEnabled(false);
   cancelChallengeBtn.hidden = true;
   hideChallengeNotif();
   closeChooseModal();
   playAgainBtn.hidden = true;
+  undoBtn.hidden      = true;
   resetBoard();
   setBoardEnabled(myTurn);
   setBoardTurnClass(myTurn ? mySymbol : (mySymbol === 'B' ? 'W' : 'B'));
@@ -399,8 +448,11 @@ socket.on('game-start', ({ symbol, roomId: rid }) => {
   mySymbolEl.className = symbol;
   mySymbolEl.hidden    = false;
   const opp = symbol === 'B' ? 'W' : 'B';
-  setStatus(myTurn ? 'yourTurn' : 'opponentTurnBlack',
-            myTurn ? `turn-${symbol} my-turn` : `turn-${opp}`);
+  if (myTurn) {
+    setStatus('yourTurn', `turn-${symbol} my-turn`);
+  } else {
+    setStatus(isAIGame ? 'aiThinking' : 'opponentTurnBlack', `turn-${opp}`);
+  }
 });
 
 socket.on('move-made', ({ index, symbol }) => {
@@ -409,8 +461,12 @@ socket.on('move-made', ({ index, symbol }) => {
   setBoardEnabled(myTurn);
   setBoardTurnClass(myTurn ? mySymbol : (mySymbol === 'B' ? 'W' : 'B'));
   const opp = mySymbol === 'B' ? 'W' : 'B';
-  setStatus(myTurn ? 'yourTurn' : 'opponentTurn',
-            myTurn ? `turn-${mySymbol} my-turn` : `turn-${opp}`);
+  if (myTurn) {
+    setStatus('yourTurn', `turn-${mySymbol} my-turn`);
+  } else {
+    setStatus(isAIGame ? 'aiThinking' : 'opponentTurn', `turn-${opp}`);
+  }
+  updateUndoBtn();
 });
 
 const REASON_KEYS = { overline: 'overline', 'double-four': 'doubleFour', 'double-three': 'doubleThree' };
@@ -435,6 +491,29 @@ socket.on('opponent-left', () => {
   endGame();
   setStatus('opponentLeft');
   playAgainBtn.hidden = false;
+});
+
+socket.on('move-undone', ({ board: newBoard, currentTurn }) => {
+  board = [...newBoard];
+  // Re-render board without animation (static restore)
+  cells.forEach((cell, i) => {
+    const sym  = newBoard[i];
+    const star = STARS.has(i) ? ' star' : '';
+    if (sym) {
+      cell.className = `cell${star} ${sym}${sym === mySymbol ? ' mine' : ''}`;
+      cell.disabled  = true;
+    } else {
+      cell.className = 'cell' + star;
+      cell.disabled  = true;
+    }
+  });
+  myTurn = currentTurn === mySymbol;
+  setBoardEnabled(myTurn);
+  setBoardTurnClass(myTurn ? mySymbol : (mySymbol === 'B' ? 'W' : 'B'));
+  const opp = mySymbol === 'B' ? 'W' : 'B';
+  setStatus(myTurn ? 'yourTurn' : 'aiThinking',
+            myTurn ? `turn-${mySymbol} my-turn` : `turn-${opp}`);
+  updateUndoBtn();
 });
 
 // ── Show modal on load ─────────────────────────────────────

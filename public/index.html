@@ -97,6 +97,20 @@
       <span class="spinner" hidden aria-hidden="true"></span>
     </button>
     <button id="challenge-btn" disabled data-i18n="challengePlayer">挑战玩家</button>
+    <button id="ai-btn" disabled data-i18n="vsAI">对战电脑</button>
+  </div>
+
+  <!-- ── AI difficulty modal ───────────────────────── -->
+  <div id="ai-modal" hidden>
+    <div class="modal-card">
+      <h2 data-i18n="selectDifficulty">选择难度</h2>
+      <div class="difficulty-btns">
+        <button class="diff-btn" data-diff="easy"   data-i18n="diffEasy">简单</button>
+        <button class="diff-btn" data-diff="medium" data-i18n="diffMedium">中等</button>
+        <button class="diff-btn" data-diff="hard"   data-i18n="diffHard">困难</button>
+      </div>
+      <button id="close-ai-modal" class="ghost" style="margin-top:14px" data-i18n="cancelChallenge">取消</button>
+    </div>
   </div>
 
   <button id="cancel-challenge-btn" hidden data-i18n="cancelChallenge">取消挑战</button>
@@ -107,7 +121,10 @@
 
   <div id="board"></div>
 
-  <button id="play-again-btn" hidden data-i18n="playAgain">再来一局</button>
+  <div id="post-game-btns">
+    <button id="play-again-btn" hidden data-i18n="playAgain">再来一局</button>
+    <button id="undo-btn"       hidden data-i18n="undoMove">悔棋</button>
+  </div>
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="i18n.js"></script>

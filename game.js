@@ -8,6 +8,7 @@ class GomokuGame {
     this.currentTurn = 'B'; // Black first
     this.gameOver = false;
     this.moveCount = 0;
+    this.moveHistory = []; // [{ index, symbol }, ...]
   }
 
   static rc(i)  { return [Math.floor(i / N), i % N]; }
@@ -44,11 +45,33 @@ class GomokuGame {
       this.currentTurn = symbol === 'B' ? 'W' : 'B';
     }
 
+    this.moveHistory.push({ index, symbol });
     return { valid: true, symbol, winner, isDraw, board: [...this.board] };
   }
 
   getState() {
     return { board: [...this.board], currentTurn: this.currentTurn };
+  }
+
+  // Returns true if index is a legal move for currentTurn (includes forbidden-move check for Black)
+  isValidMove(index) {
+    if (this.gameOver || index < 0 || index >= TOTAL || this.board[index] !== null) return false;
+    if (this.currentTurn === 'B') {
+      const [row, col] = GomokuGame.rc(index);
+      if (this._forbidden(row, col)) return false;
+    }
+    return true;
+  }
+
+  // Reverts the last move; returns false if history is empty
+  undo() {
+    if (this.moveHistory.length === 0) return false;
+    const { index, symbol } = this.moveHistory.pop();
+    this.board[index] = null;
+    this.moveCount--;
+    this.currentTurn = symbol; // restore turn to who just played
+    this.gameOver = false;
+    return true;
   }
 
   // ── Private helpers ──────────────────────────────────────

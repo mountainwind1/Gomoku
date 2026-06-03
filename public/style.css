@@ -547,6 +547,99 @@ h1 {
 
 #play-again-btn:hover { background: #667eea; color: #fff; }
 
+/* ── Ghost button (cancel / close / decline) ────────────── */
+.ghost {
+  padding: 9px 22px;
+  border: 1.5px solid rgba(255,255,255,0.2);
+  border-radius: 9px;
+  background: transparent;
+  color: #a0aec0;
+  font-size: 0.93rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.ghost:hover { border-color: #667eea; color: #e2e8f0; }
+
+/* ── vs AI button ────────────────────────────────────────── */
+#ai-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border: 2px solid #ed8936;
+  border-radius: 10px;
+  cursor: pointer;
+  background: transparent;
+  color: #ed8936;
+  transition: background 0.15s, color 0.15s, transform 0.15s, opacity 0.15s;
+}
+#ai-btn:hover:not(:disabled) { background: #ed8936; color: #fff; transform: translateY(-2px); }
+#ai-btn:disabled { opacity: 0.45; cursor: default; transform: none; }
+
+/* ── AI difficulty modal ─────────────────────────────────── */
+#ai-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(10,12,24,0.82);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 550;
+}
+#ai-modal[hidden] { display: none; }
+
+.difficulty-btns {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin: 8px 0 4px;
+}
+
+.diff-btn {
+  flex: 1;
+  padding: 10px 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  border: 2px solid;
+  border-radius: 9px;
+  cursor: pointer;
+  background: transparent;
+  transition: background 0.15s, color 0.15s;
+}
+.diff-btn[data-diff="easy"]          { border-color: #48bb78; color: #48bb78; }
+.diff-btn[data-diff="medium"]        { border-color: #ed8936; color: #ed8936; }
+.diff-btn[data-diff="hard"]          { border-color: #fc8181; color: #fc8181; }
+.diff-btn[data-diff="easy"]:hover    { background: #48bb78; color: #1a1a2e; }
+.diff-btn[data-diff="medium"]:hover  { background: #ed8936; color: #1a1a2e; }
+.diff-btn[data-diff="hard"]:hover    { background: #fc8181; color: #1a1a2e; }
+
+/* ── Post-game buttons row ───────────────────────────────── */
+#post-game-btns {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ── Undo button ─────────────────────────────────────────── */
+#undo-btn {
+  padding: 9px 22px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: 2px solid #ed8936;
+  border-radius: 10px;
+  cursor: pointer;
+  background: transparent;
+  color: #ed8936;
+  transition: background 0.15s, color 0.15s;
+}
+#undo-btn:hover:not(:disabled) { background: #ed8936; color: #fff; }
+#undo-btn:disabled { opacity: 0.4; cursor: default; }
+
 /* ── Gomoku board ────────────────────────────────────────── */
 #board {
   display: grid;

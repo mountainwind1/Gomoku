@@ -3,9 +3,10 @@ const http    = require('http');
 const https   = require('https');
 const { Server } = require('socket.io');
 const {
-  addToQueue, handleDisconnect, createRoom,
+  addToQueue, handleDisconnect, createRoom, createAIRoom,
   activeGames, socketRooms,
 } = require('./matchmaking');
+const { getMove } = require('./ai');
 
 const app    = express();
 const server = http.createServer(app);
@@ -95,6 +96,31 @@ function cleanupChallenge(socketId) {
   }
 }
 
+// ── AI move scheduler ──────────────────────────────────────
+const AI_DELAY = { easy: 400, medium: 600, hard: 900 };
+
+function scheduleAIMove(room, roomId) {
+  const delay = AI_DELAY[room.difficulty] || 600;
+  room.aiTimer = setTimeout(() => {
+    room.aiTimer = null;
+    if (!activeGames.has(roomId)) return;
+
+    const aiIdx    = getMove(room.game, room.difficulty);
+    const aiResult = room.game.makeMove(aiIdx);
+    if (!aiResult.valid) return;
+
+    io.to(roomId).emit('move-made', { index: aiIdx, symbol: aiResult.symbol, board: aiResult.board });
+
+    if (aiResult.winner || aiResult.isDraw) {
+      io.to(roomId).emit('game-over', aiResult.winner ? { winner: aiResult.winner } : { isDraw: true });
+      for (const [, id] of Object.entries(room.players)) {
+        if (id !== 'AI' && onlineUsers.has(id)) onlineUsers.get(id).status = 'idle';
+      }
+      broadcastOnline();
+    }
+  }, delay);
+}
+
 // ── Socket.io ──────────────────────────────────────────────
 io.on('connection', socket => {
   console.log('Player connected:', socket.id);
@@ -116,6 +142,17 @@ io.on('connection', socket => {
     onlineUsers.set(socket.id, { name: clean, country, countryCode, flag, status: 'idle' });
     socket.emit('user-registered', { name: clean, country, countryCode, flag });
     broadcastOnline();
+  });
+
+  // ── AI matchmaking ─────────────────────────────────────
+  socket.on('play-vs-ai', ({ difficulty = 'medium' }) => {
+    if (!onlineUsers.has(socket.id)) return;
+    const { roomId, room } = createAIRoom(socket, io, difficulty);
+    if (onlineUsers.has(socket.id)) onlineUsers.get(socket.id).status = 'in-game';
+    broadcastOnline();
+
+    // If AI is Black it moves first
+    if (room.aiSymbol === 'B') scheduleAIMove(room, roomId);
   });
 
   // ── Random matchmaking ─────────────────────────────────
@@ -223,7 +260,34 @@ io.on('connection', socket => {
         if (onlineUsers.has(id)) onlineUsers.get(id).status = 'idle';
       }
       broadcastOnline();
+      return;
     }
+
+    // AI response in AI games
+    if (room.isAI) scheduleAIMove(room, roomId);
+  });
+
+  // ── Undo move (AI games only) ──────────────────────────
+  socket.on('undo-move', () => {
+    const roomId = socketRooms.get(socket.id);
+    if (!roomId) return;
+    const room = activeGames.get(roomId);
+    if (!room || !room.isAI || room.game.gameOver) return;
+
+    // Cancel any pending AI timer to avoid applying a move on the old state
+    if (room.aiTimer) { clearTimeout(room.aiTimer); room.aiTimer = null; }
+
+    const count = Math.min(2, room.game.moveHistory.length);
+    if (count === 0) return;
+    for (let i = 0; i < count; i++) room.game.undo();
+
+    socket.emit('move-undone', {
+      board: [...room.game.board],
+      currentTurn: room.game.currentTurn,
+    });
+
+    // If we undid back to a state where AI moves first, re-schedule it
+    if (room.game.currentTurn === room.aiSymbol) scheduleAIMove(room, roomId);
   });
 
   // ── Disconnect ─────────────────────────────────────────

@@ -56,16 +56,39 @@ function handleDisconnect(socket, io) {
   const room = activeGames.get(roomId);
   if (!room) return;
 
+  // Cancel any pending AI move timer
+  if (room.aiTimer) { clearTimeout(room.aiTimer); room.aiTimer = null; }
+
   activeGames.delete(roomId);
 
-  // Notify opponent and clean up their mapping
+  // Notify human opponents and clean up their mapping ('AI' has no real socket)
   const { players } = room;
   for (const [, id] of Object.entries(players)) {
-    if (id !== socket.id) {
+    if (id !== socket.id && id !== 'AI') {
       socketRooms.delete(id);
       io.to(id).emit('opponent-left');
     }
   }
 }
 
-module.exports = { addToQueue, removeFromQueue, handleDisconnect, createRoom, activeGames, socketRooms };
+// Create a room against the AI; returns { roomId, room }
+function createAIRoom(socket, io, difficulty) {
+  const roomId = generateRoomId();
+  const game   = new GomokuGame();
+  const [humanSym, aiSym] = Math.random() < 0.5 ? ['B', 'W'] : ['W', 'B'];
+  const players = { [humanSym]: socket.id, [aiSym]: 'AI' };
+  const room    = { game, players, isAI: true, aiSymbol: aiSym, difficulty, aiTimer: null };
+
+  activeGames.set(roomId, room);
+  socketRooms.set(socket.id, roomId);
+  socket.join(roomId);
+  socket.emit('game-start', { symbol: humanSym, roomId, isAI: true, difficulty });
+
+  return { roomId, room };
+}
+
+module.exports = {
+  addToQueue, removeFromQueue, handleDisconnect,
+  createRoom, createAIRoom,
+  activeGames, socketRooms,
+};
