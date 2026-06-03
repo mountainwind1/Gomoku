@@ -8,27 +8,30 @@ function generateRoomId() {
   return Math.random().toString(36).slice(2, 10);
 }
 
+// Create a room directly between two sockets (used by challenge flow)
+function createRoom(socketA, socketB, io) {
+  const roomId = generateRoomId();
+  const game   = new GomokuGame();
+  const [symA, symB] = Math.random() < 0.5 ? ['B', 'W'] : ['W', 'B'];
+  const players = { [symA]: socketA.id, [symB]: socketB.id };
+
+  activeGames.set(roomId, { game, players });
+  socketRooms.set(socketA.id, roomId);
+  socketRooms.set(socketB.id, roomId);
+
+  socketA.join(roomId);
+  socketB.join(roomId);
+
+  socketA.emit('game-start', { symbol: symA, roomId });
+  socketB.emit('game-start', { symbol: symB, roomId });
+
+  return { roomId, players };
+}
+
 function addToQueue(socket, io) {
   if (waitingQueue.length > 0) {
     const opponent = waitingQueue.shift();
-
-    const roomId = generateRoomId();
-    const game = new GomokuGame();
-
-    // Randomly assign colours; Black always moves first per game rules
-    const [symbolA, symbolB] = Math.random() < 0.5 ? ['B', 'W'] : ['W', 'B'];
-
-    const players = { [symbolA]: opponent.id, [symbolB]: socket.id };
-
-    activeGames.set(roomId, { game, players });
-    socketRooms.set(opponent.id, roomId);
-    socketRooms.set(socket.id, roomId);
-
-    opponent.join(roomId);
-    socket.join(roomId);
-
-    opponent.emit('game-start', { symbol: symbolA, roomId });
-    socket.emit('game-start', { symbol: symbolB, roomId });
+    createRoom(opponent, socket, io);
   } else {
     waitingQueue.push(socket);
     socket.emit('waiting');
@@ -65,4 +68,4 @@ function handleDisconnect(socket, io) {
   }
 }
 
-module.exports = { addToQueue, removeFromQueue, handleDisconnect, activeGames, socketRooms };
+module.exports = { addToQueue, removeFromQueue, handleDisconnect, createRoom, activeGames, socketRooms };

@@ -28,6 +28,183 @@ h1 {
   color: #fff;
 }
 
+/* ── Welcome modal ───────────────────────────────────────── */
+#welcome-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 12, 24, 0.88);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 600;
+}
+
+.modal-card {
+  background: #1e2535;
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 18px;
+  padding: 36px 40px;
+  text-align: center;
+  max-width: 340px;
+  width: 90%;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.65);
+  animation: modalIn 0.22s ease;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.97); }
+  to   { opacity: 1; transform: none; }
+}
+
+.modal-card h2 {
+  font-size: 1.25rem;
+  color: #e2e8f0;
+  margin-bottom: 20px;
+}
+
+.modal-card p {
+  color: #a0aec0;
+  margin-bottom: 14px;
+  font-size: 0.93rem;
+}
+
+#returning-msg {
+  font-size: 1rem;
+  color: #e2e8f0;
+  font-weight: 600;
+}
+
+#name-input {
+  display: block;
+  width: 100%;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  border: 1.5px solid rgba(255,255,255,0.15);
+  border-radius: 9px;
+  background: rgba(255,255,255,0.06);
+  color: #e2e8f0;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+#name-input:focus { border-color: #667eea; }
+
+.modal-actions { display: flex; gap: 10px; justify-content: center; margin-top: 16px; }
+
+#confirm-name-btn,
+#continue-btn {
+  padding: 9px 26px;
+  border: none;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+#confirm-name-btn { width: 100%; }
+#confirm-name-btn:hover, #continue-btn:hover { opacity: 0.85; }
+
+#new-user-btn {
+  padding: 9px 22px;
+  border: 1.5px solid rgba(255,255,255,0.2);
+  border-radius: 9px;
+  background: transparent;
+  color: #a0aec0;
+  font-size: 0.93rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+#new-user-btn:hover { border-color: #667eea; color: #667eea; }
+
+/* ── User info bar ───────────────────────────────────────── */
+#user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: #a0aec0;
+}
+#user-flag { font-size: 1.3rem; line-height: 1; }
+#user-name { font-weight: 700; color: #e2e8f0; }
+
+/* ── Online panel (fixed bottom-right) ───────────────────── */
+#online-panel {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  z-index: 100;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+#online-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  color: #a0aec0;
+  cursor: pointer;
+  user-select: none;
+  transition: border-color 0.15s, color 0.15s;
+}
+#online-toggle:hover { border-color: #48bb78; color: #e2e8f0; }
+
+.online-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #48bb78;
+  flex-shrink: 0;
+  box-shadow: 0 0 5px #48bb78;
+}
+
+.online-arrow { font-size: 0.62rem; opacity: 0.7; transition: transform 0.2s; }
+#online-panel.open .online-arrow { transform: rotate(180deg); }
+
+#online-list {
+  position: absolute;
+  bottom: calc(100% + 7px);
+  right: 0;
+  background: #1e2535;
+  border: 1.5px solid rgba(255,255,255,0.12);
+  border-radius: 10px;
+  padding: 5px;
+  list-style: none;
+  min-width: 200px;
+  max-height: 300px;
+  overflow-y: auto;
+  box-shadow: 0 -10px 28px rgba(0,0,0,0.45);
+  animation: menuIn 0.14s ease;
+}
+
+#online-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 6px;
+  color: #cbd5e0;
+}
+
+.ol-flag { font-size: 1rem; flex-shrink: 0; }
+.ol-name { flex: 1; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ol-status {
+  font-size: 0.67rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.ol-status.idle    { color: #718096; background: rgba(113,128,150,0.2); }
+.ol-status.waiting { color: #d69e2e; background: rgba(214,158,46,0.15); }
+.ol-status.in-game { color: #48bb78; background: rgba(72,187,120,0.15); }
+
 /* ── Confetti canvas ─────────────────────────────────────── */
 #confetti-canvas {
   position: fixed;
@@ -184,12 +361,124 @@ h1 {
 #lang-menu li:hover  { background: rgba(102,126,234,0.18); color: #e2e8f0; }
 #lang-menu li.active { color: #818cf8; font-weight: 700; }
 
+/* ── Match buttons (two-button row) ─────────────────────── */
+#match-btns {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+#cancel-challenge-btn {
+  padding: 7px 22px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  border: 1.5px solid rgba(252,129,129,0.45);
+  border-radius: 9px;
+  cursor: pointer;
+  background: transparent;
+  color: #fc8181;
+  transition: background 0.15s, color 0.15s;
+}
+#cancel-challenge-btn:hover { background: rgba(252,129,129,0.12); }
+
+/* ── Choose opponent modal ───────────────────────────────── */
+#choose-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(10,12,24,0.82);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 550;
+}
+#choose-modal[hidden] { display: none; }
+
+#choose-list {
+  list-style: none;
+  width: 100%;
+  max-height: 260px;
+  overflow-y: auto;
+  margin-bottom: 4px;
+}
+
+#choose-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  transition: background 0.12s;
+}
+#choose-list li:hover { background: rgba(255,255,255,0.04); }
+
+.challenge-pick-btn {
+  margin-left: auto;
+  padding: 5px 14px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: 1.5px solid #667eea;
+  border-radius: 6px;
+  background: transparent;
+  color: #667eea;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+.challenge-pick-btn:hover { background: #667eea; color: #fff; }
+
+/* ── Incoming challenge notification ─────────────────────── */
+#challenge-notif {
+  position: fixed;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 580;
+  animation: slideDown 0.22s ease;
+}
+#challenge-notif[hidden] { display: none; }
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateX(-50%) translateY(-12px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.notif-card {
+  background: #1e2535;
+  border: 1.5px solid rgba(102,126,234,0.5);
+  border-radius: 14px;
+  padding: 18px 24px;
+  text-align: center;
+  min-width: 260px;
+  box-shadow: 0 12px 36px rgba(0,0,0,0.55);
+}
+.notif-card p {
+  color: #e2e8f0;
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 14px;
+}
+.notif-actions { display: flex; gap: 10px; justify-content: center; }
+
+#accept-btn {
+  padding: 8px 22px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+#accept-btn:hover { opacity: 0.85; }
+
 /* ── Buttons ─────────────────────────────────────────────── */
-#find-game-btn {
+#random-match-btn {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 36px;
+  padding: 12px 28px;
   font-size: 1rem;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -202,12 +491,35 @@ h1 {
   transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
 }
 
-#find-game-btn:hover:not(:disabled) {
+#random-match-btn:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 7px 24px rgba(102,126,234,0.6);
 }
 
-#find-game-btn:disabled { opacity: 0.55; cursor: default; transform: none; }
+#random-match-btn:disabled { opacity: 0.55; cursor: default; transform: none; }
+
+#challenge-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border: 2px solid #667eea;
+  border-radius: 10px;
+  cursor: pointer;
+  background: transparent;
+  color: #667eea;
+  transition: background 0.15s, color 0.15s, transform 0.15s, opacity 0.15s;
+}
+
+#challenge-btn:hover:not(:disabled) {
+  background: #667eea;
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+#challenge-btn:disabled { opacity: 0.45; cursor: default; transform: none; }
 
 .spinner {
   width: 15px;
