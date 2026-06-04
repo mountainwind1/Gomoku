@@ -246,46 +246,47 @@ async function main() {
     }
   });
 
-  // 8. Forbidden move still rejected in AI game
-  await run('AI 对局中黑棋禁手被拒绝', async () => {
-    const s = connect('A8');
-    await waitFor(s, 'connect');
-    await register(s, 'TestForbid');
+  // 8. Forbidden move detection — tested via two-player game so AI cannot
+  //    preemptively block the setup position (the server logic is identical).
+  await run('服务端禁手检测（长连禁手，双人对局验证）', async () => {
+    const b = connect('A8b'), w = connect('A8w');
+    await Promise.all([waitFor(b, 'connect'), waitFor(w, 'connect')]);
+    await register(b, 'ForbidB');
+    await register(w, 'ForbidW');
 
-    let gs;
-    // Need human to be Black
-    for (let attempt = 0; attempt < 10; attempt++) {
-      const p = waitFor(s, 'game-start', 2000);
-      if (attempt > 0) { await delay(200); }
-      s.emit('play-vs-ai', { difficulty: 'easy' });
-      gs = await p;
-      if (gs.symbol === 'B') break;
-      // Got White; disconnect and retry
-      s.disconnect();
-      s.connect();
-      await waitFor(s, 'connect');
-      await register(s, 'TestForbid');
-    }
-    if (gs.symbol !== 'B') { s.disconnect(); throw new Error('could not get Black in 10 attempts'); }
+    // Pair them with random match
+    const gsB = waitFor(b, 'game-start'), gsW = waitFor(w, 'game-start');
+    b.emit('find-game'); w.emit('find-game');
+    const [startB, startW] = await Promise.all([gsB, gsW]);
+
+    // Identify who got Black and who got White
+    const black = startB.symbol === 'B' ? b : w;
+    const white = startB.symbol === 'B' ? w : b;
+    const roomId = startB.roomId;
 
     const N = 15;
-    // Build overline setup: B at row7 cols 0,1,2,4,5; W at corners
+    // Build overline setup: B at row 7, cols 0,1,2,4,5 (gap at 3)
+    // Interleave White moves at safe scattered positions
     const seq = [
-      [7*N+0], [7*N+1], [7*N+2], [7*N+4], [7*N+5],
+      [black, 7*N+0], [white, 14*N+0],
+      [black, 7*N+1], [white, 14*N+2],
+      [black, 7*N+2], [white, 14*N+4],
+      [black, 7*N+4], [white, 14*N+6],
+      [black, 7*N+5], [white, 14*N+8],
     ];
-    // Interleave with AI moves (easy AI plays somewhere)
-    for (const [bIdx] of seq) {
-      s.emit('make-move', { index: bIdx });
-      await waitFor(s, 'move-made', 1000); // B move confirmed
-      await waitFor(s, 'move-made', 1000); // AI (W) responds
+    for (const [sock, idx] of seq) {
+      const p = waitFor(b, 'move-made');
+      sock.emit('make-move', { index: idx, roomId });
+      await p;
     }
-    // Now play overline at 7*N+3 → forbidden
-    const forbidP = waitFor(s, 'forbidden-move', 1000);
-    s.emit('make-move', { index: 7*N+3 });
+
+    // Black attempts overline at col 3 → forbidden
+    const forbidP = waitFor(black, 'forbidden-move', 1000);
+    black.emit('make-move', { index: 7*N+3, roomId });
     const fb = await forbidP;
     if (fb.reason !== 'overline') throw new Error(`expected overline, got ${fb.reason}`);
 
-    s.disconnect();
+    b.disconnect(); w.disconnect();
   });
 
   // ── Report ───────────────────────────────────────────────
