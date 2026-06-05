@@ -272,7 +272,7 @@ io.on('connection', socket => {
     const roomId = socketRooms.get(socket.id);
     if (!roomId) return;
     const room = activeGames.get(roomId);
-    if (!room || !room.isAI || room.game.gameOver) return;
+    if (!room || !room.isAI) return;
 
     // Cancel any pending AI timer to avoid applying a move on the old state
     if (room.aiTimer) { clearTimeout(room.aiTimer); room.aiTimer = null; }
@@ -281,9 +281,17 @@ io.on('connection', socket => {
     if (count === 0) return;
     for (let i = 0; i < count; i++) room.game.undo();
 
+    // Restore player status to in-game (may have been set idle after game-over)
+    if (onlineUsers.has(socket.id)) onlineUsers.get(socket.id).status = 'in-game';
+
+    const lastMoveIndex = room.game.moveHistory.length > 0
+      ? room.game.moveHistory[room.game.moveHistory.length - 1].index
+      : null;
+
     socket.emit('move-undone', {
       board: [...room.game.board],
       currentTurn: room.game.currentTurn,
+      lastMoveIndex,
     });
 
     // If we undid back to a state where AI moves first, re-schedule it
