@@ -625,15 +625,19 @@ h1 {
   flex-wrap: wrap;
 }
 
-/* ── Undo button ─────────────────────────────────────────── */
+/* ── Undo button (fixed bottom-right, above online panel) ── */
 #undo-btn {
+  position: fixed;
+  bottom: 62px;
+  right: 16px;
+  z-index: 100;
   padding: 9px 22px;
   font-size: 0.95rem;
   font-weight: 600;
   border: 2px solid #ed8936;
   border-radius: 10px;
   cursor: pointer;
-  background: transparent;
+  background: rgba(26,26,46,0.9);
   color: #ed8936;
   transition: background 0.15s, color 0.15s;
 }
@@ -666,7 +670,10 @@ h1 {
 #board::after {
   content: '';
   position: absolute;
-  inset: calc(var(--cell) / 2);   /* align first line to centre of first cell */
+  top:    calc(var(--cell) / 2);
+  left:   calc(var(--cell) / 2);
+  right:  calc(var(--cell) / 2 - 1px);   /* 1px less than top/left so the 15th tile fits */
+  bottom: calc(var(--cell) / 2 - 1px);
   pointer-events: none;
   background-image:
     repeating-linear-gradient(to right, var(--line) 0, var(--line) 1px, transparent 1px, transparent var(--cell)),
@@ -755,6 +762,23 @@ h1 {
   background: var(--line);
   transform: translate(-50%, -50%);
   z-index: -1;
+}
+
+/* Last-move marker — red cross centered on the stone */
+.cell.last-move::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(var(--stone) * 0.6);
+  height: calc(var(--stone) * 0.6);
+  border-radius: 0;
+  transform: translate(-50%, -50%);
+  background:
+    linear-gradient(#fc3d3d, #fc3d3d) center / 3px 100% no-repeat,
+    linear-gradient(#fc3d3d, #fc3d3d) center / 100% 3px no-repeat;
+  z-index: 2;
+  pointer-events: none;
 }
 
 /* Winning stone glow */

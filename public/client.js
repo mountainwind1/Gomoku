@@ -77,6 +77,8 @@ let statusState     = { key: 'initialStatus', cls: '', vars: {} };
 let lastOnline      = { count: 0, users: [] };
 let pendingChallengerId = null; // set when we received a challenge
 let isAIGame            = false;
+let gameIsOver          = false;
+let lastMoveIndex       = null;
 
 // ── i18n helpers ───────────────────────────────────────────
 function _renderStatus() {
@@ -152,6 +154,7 @@ function setBoardEnabled(on) {
   });
 }
 function resetBoard() {
+  lastMoveIndex = null;
   board = Array(TOTAL).fill(null);
   cells.forEach((cell, i) => {
     cell.className = 'cell' + (STARS.has(i) ? ' star' : '');
@@ -160,13 +163,15 @@ function resetBoard() {
   setBoardTurnClass(null);
 }
 function renderCell(index, symbol) {
+  if (lastMoveIndex !== null) cells[lastMoveIndex].classList.remove('last-move');
+  lastMoveIndex = index;
   board[index] = symbol;
   const cell = cells[index];
   const mine  = symbol === mySymbol ? ' mine' : '';
   const star  = STARS.has(index) ? ' star' : '';
   cell.className = 'cell' + star;
   void cell.offsetWidth;
-  cell.className = `cell${star} ${symbol}${mine}`;
+  cell.className = `cell${star} ${symbol}${mine} last-move`;
   cell.disabled  = true;
 }
 function findWinningLine(b) {
@@ -196,16 +201,18 @@ function startRandomSearch() {
 }
 function endGame() {
   myTurn = false;
+  gameIsOver = true;
   setBoardEnabled(false);
   setBoardTurnClass(null);
   setMatchBtnsEnabled(true);
   cancelChallengeBtn.hidden = true;
-  undoBtn.hidden = true;
+  if (!isAIGame) undoBtn.hidden = true;
 }
 
 // Show/hide undo button depending on game state
 function updateUndoBtn() {
-  if (!isAIGame || !myTurn) { undoBtn.hidden = true; return; }
+  if (!isAIGame) { undoBtn.hidden = true; return; }
+  if (!myTurn && !gameIsOver) { undoBtn.hidden = true; return; }
   const stones = board.filter(x => x !== null).length;
   undoBtn.hidden   = false;
   undoBtn.disabled = stones < 2;
@@ -406,6 +413,7 @@ undoBtn.addEventListener('click', () => socket.emit('undo-move'));
 
 playAgainBtn.addEventListener('click', () => {
   isAIGame            = false;
+  gameIsOver          = false;
   playAgainBtn.hidden = true;
   mySymbolEl.hidden   = true;
   undoBtn.hidden      = true;
@@ -430,10 +438,11 @@ cells.forEach(cell => {
 socket.on('waiting', () => setStatus('waiting'));
 
 socket.on('game-start', ({ symbol, roomId: rid, isAI: ai = false }) => {
-  mySymbol = symbol;
-  roomId   = rid;
-  myTurn   = symbol === 'B';
-  isAIGame = ai;
+  mySymbol   = symbol;
+  roomId     = rid;
+  myTurn     = symbol === 'B';
+  isAIGame   = ai;
+  gameIsOver = false;
   setSearching(false);
   setMatchBtnsEnabled(false);
   cancelChallengeBtn.hidden = true;
@@ -485,6 +494,7 @@ socket.on('game-over', ({ winner, isDraw }) => {
   else if (winner === mySymbol) { setStatus('win'); launchConfetti(); }
   else                          setStatus('lose');
   playAgainBtn.hidden = false;
+  updateUndoBtn();
 });
 
 socket.on('opponent-left', () => {
@@ -493,14 +503,20 @@ socket.on('opponent-left', () => {
   playAgainBtn.hidden = false;
 });
 
-socket.on('move-undone', ({ board: newBoard, currentTurn }) => {
+socket.on('move-undone', ({ board: newBoard, currentTurn, lastMoveIndex: lmi }) => {
+  gameIsOver = false;
+  cells.forEach(cell => cell.classList.remove('winner'));
+
+  lastMoveIndex = lmi ?? null;
   board = [...newBoard];
+
   // Re-render board without animation (static restore)
   cells.forEach((cell, i) => {
     const sym  = newBoard[i];
     const star = STARS.has(i) ? ' star' : '';
+    const lm   = i === lastMoveIndex ? ' last-move' : '';
     if (sym) {
-      cell.className = `cell${star} ${sym}${sym === mySymbol ? ' mine' : ''}`;
+      cell.className = `cell${star}${lm} ${sym}${sym === mySymbol ? ' mine' : ''}`;
       cell.disabled  = true;
     } else {
       cell.className = 'cell' + star;
@@ -513,6 +529,7 @@ socket.on('move-undone', ({ board: newBoard, currentTurn }) => {
   const opp = mySymbol === 'B' ? 'W' : 'B';
   setStatus(myTurn ? 'yourTurn' : 'aiThinking',
             myTurn ? `turn-${mySymbol} my-turn` : `turn-${opp}`);
+  setMatchBtnsEnabled(false);
   updateUndoBtn();
 });
 
