@@ -670,10 +670,10 @@ h1 {
 #board::after {
   content: '';
   position: absolute;
-  top:    calc(var(--cell) / 2);  /* first line aligns to column/row centres */
+  top:    calc(var(--cell) / 2);
   left:   calc(var(--cell) / 2);
-  right:  0;                      /* extend to content edge so 15th line isn't clipped */
-  bottom: 0;
+  right:  calc(var(--cell) / 2 - 1px);   /* 1px less than top/left so the 15th tile fits */
+  bottom: calc(var(--cell) / 2 - 1px);
   pointer-events: none;
   background-image:
     repeating-linear-gradient(to right, var(--line) 0, var(--line) 1px, transparent 1px, transparent var(--cell)),
