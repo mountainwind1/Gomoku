@@ -625,10 +625,10 @@ h1 {
   flex-wrap: wrap;
 }
 
-/* ── Undo button (fixed bottom-right, above online panel) ── */
+/* ── Undo button (fixed top-right, below conn-status) ── */
 #undo-btn {
   position: fixed;
-  bottom: 62px;
+  top: 46px;
   right: 16px;
   z-index: 100;
   padding: 9px 22px;
