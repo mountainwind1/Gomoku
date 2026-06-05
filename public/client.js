@@ -59,7 +59,6 @@ const aiBtn            = document.getElementById('ai-btn');
 const aiModal          = document.getElementById('ai-modal');
 const closeAiModalBtn  = document.getElementById('close-ai-modal');
 // Undo
-const boardWrap        = document.getElementById('board-wrap');
 const undoBtn          = document.getElementById('undo-btn');
 // Incoming challenge notification
 const challengeNotif   = document.getElementById('challenge-notif');
@@ -415,7 +414,6 @@ undoBtn.addEventListener('click', () => socket.emit('undo-move'));
 playAgainBtn.addEventListener('click', () => {
   isAIGame            = false;
   gameIsOver          = false;
-  boardWrap.classList.remove('has-undo');
   playAgainBtn.hidden = true;
   mySymbolEl.hidden   = true;
   undoBtn.hidden      = true;
@@ -445,7 +443,6 @@ socket.on('game-start', ({ symbol, roomId: rid, isAI: ai = false }) => {
   myTurn     = symbol === 'B';
   isAIGame   = ai;
   gameIsOver = false;
-  boardWrap.classList.toggle('has-undo', ai);
   setSearching(false);
   setMatchBtnsEnabled(false);
   cancelChallengeBtn.hidden = true;

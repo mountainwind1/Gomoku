@@ -361,12 +361,25 @@ h1 {
 #lang-menu li:hover  { background: rgba(102,126,234,0.18); color: #e2e8f0; }
 #lang-menu li.active { color: #818cf8; font-weight: 700; }
 
-/* ── Match buttons (two-button row) ─────────────────────── */
+/* ── Match buttons ───────────────────────────────────────── */
 #match-btns {
   display: flex;
   gap: 12px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: center;
+}
+
+@media (max-width: 460px) {
+  #match-btns { gap: 8px; }
+  #random-match-btn,
+  #challenge-btn,
+  #ai-btn {
+    flex: 1;
+    padding-left: 8px;
+    padding-right: 8px;
+    font-size: 0.82rem;
+    letter-spacing: 0;
+  }
 }
 
 #cancel-challenge-btn {
@@ -625,26 +638,29 @@ h1 {
   flex-wrap: wrap;
 }
 
-/* ── Board wrapper — anchors undo button to board top-right ── */
-#board-wrap {
-  position: relative;
+/* ── Board header: symbol badge left, undo button right ───── */
+#board-header {
+  display: flex;
+  align-items: center;
+  width: calc(var(--cell) * 16); /* matches board total width (15 cols + 2×border) */
+  min-height: 0;
 }
-#board-wrap.has-undo {
-  padding-top: 50px; /* reserve space for undo button above the board */
+/* Hide automatically when both children are hidden */
+#board-header:not(:has(*:not([hidden]))) {
+  display: none;
 }
 
-/* ── Undo button (absolute, top-right corner of the board) ── */
+/* ── Undo button ─────────────────────────────────────────── */
 #undo-btn {
-  position: absolute;
-  top: 6px;
-  right: 0;
+  margin-left: auto;
+  flex-shrink: 0;
   padding: 7px 18px;
   font-size: 0.88rem;
   font-weight: 600;
   border: 2px solid #ed8936;
   border-radius: 10px;
   cursor: pointer;
-  background: rgba(26,26,46,0.9);
+  background: transparent;
   color: #ed8936;
   transition: background 0.15s, color 0.15s;
   white-space: nowrap;
