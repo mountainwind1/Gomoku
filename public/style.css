@@ -670,7 +670,10 @@ h1 {
 #board::after {
   content: '';
   position: absolute;
-  inset: calc(var(--cell) / 2);   /* align first line to centre of first cell */
+  top:    calc(var(--cell) / 2);  /* first line aligns to column/row centres */
+  left:   calc(var(--cell) / 2);
+  right:  0;                      /* extend to content edge so 15th line isn't clipped */
+  bottom: 0;
   pointer-events: none;
   background-image:
     repeating-linear-gradient(to right, var(--line) 0, var(--line) 1px, transparent 1px, transparent var(--cell)),
