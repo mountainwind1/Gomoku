@@ -72,9 +72,9 @@ function handleDisconnect(socket, io) {
 }
 
 // Create a room against the AI; returns { roomId, room }
-function createAIRoom(socket, io, difficulty) {
+function createAIRoom(socket, io, difficulty, renju = true) {
   const roomId = generateRoomId();
-  const game   = new GomokuGame();
+  const game   = new GomokuGame({ renju });
   const [humanSym, aiSym] = Math.random() < 0.5 ? ['B', 'W'] : ['W', 'B'];
   const players = { [humanSym]: socket.id, [aiSym]: 'AI' };
   const room    = { game, players, isAI: true, aiSymbol: aiSym, difficulty, aiTimer: null };

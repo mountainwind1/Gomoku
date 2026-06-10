@@ -3,12 +3,13 @@ const TOTAL = N * N;
 const DIRS = [[0,1],[1,0],[1,1],[1,-1]];
 
 class GomokuGame {
-  constructor() {
+  constructor({ renju = true } = {}) {
     this.board = Array(TOTAL).fill(null);
     this.currentTurn = 'B'; // Black first
     this.gameOver = false;
     this.moveCount = 0;
     this.moveHistory = []; // [{ index, symbol }, ...]
+    this.renju = renju;
   }
 
   static rc(i)  { return [Math.floor(i / N), i % N]; }
@@ -28,7 +29,7 @@ class GomokuGame {
     const [row, col] = GomokuGame.rc(index);
     const symbol = this.currentTurn;
 
-    if (symbol === 'B') {
+    if (symbol === 'B' && this.renju) {
       const reason = this._forbidden(row, col);
       if (reason) return { valid: false, forbidden: reason };
     }
@@ -56,7 +57,7 @@ class GomokuGame {
   // Returns true if index is a legal move for currentTurn (includes forbidden-move check for Black)
   isValidMove(index) {
     if (this.gameOver || index < 0 || index >= TOTAL || this.board[index] !== null) return false;
-    if (this.currentTurn === 'B') {
+    if (this.currentTurn === 'B' && this.renju) {
       const [row, col] = GomokuGame.rc(index);
       if (this._forbidden(row, col)) return false;
     }

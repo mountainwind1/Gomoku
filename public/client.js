@@ -207,15 +207,14 @@ function endGame() {
   setMatchBtnsEnabled(true);
   cancelChallengeBtn.hidden = true;
   if (!isAIGame) undoBtn.hidden = true;
+  else updateUndoBtn();
 }
 
 // Show/hide undo button depending on game state
 function updateUndoBtn() {
   if (!isAIGame) { undoBtn.hidden = true; return; }
-  if (!myTurn && !gameIsOver) { undoBtn.hidden = true; return; }
-  const stones = board.filter(x => x !== null).length;
   undoBtn.hidden   = false;
-  undoBtn.disabled = stones < 2;
+  undoBtn.disabled = !myTurn || board.filter(x => x !== null).length < 2;
 }
 
 function openAiModal()  { aiModal.hidden = false; }
@@ -396,6 +395,7 @@ aiModal.addEventListener('click', e => { if (e.target === aiModal) closeAiModal(
 document.querySelectorAll('.diff-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     const difficulty = btn.dataset.diff;
+    const renju = document.getElementById('renju-check').checked;
     closeAiModal();
     isAIGame = true;
     setSearching(true);
@@ -405,7 +405,7 @@ document.querySelectorAll('.diff-btn').forEach(btn => {
     undoBtn.hidden      = true;
     resetBoard();
     setStatus('searching');
-    socket.emit('play-vs-ai', { difficulty });
+    socket.emit('play-vs-ai', { difficulty, renju });
   });
 });
 
@@ -449,8 +449,8 @@ socket.on('game-start', ({ symbol, roomId: rid, isAI: ai = false }) => {
   hideChallengeNotif();
   closeChooseModal();
   playAgainBtn.hidden = true;
-  undoBtn.hidden      = true;
   resetBoard();
+  updateUndoBtn();
   setBoardEnabled(myTurn);
   setBoardTurnClass(myTurn ? mySymbol : (mySymbol === 'B' ? 'W' : 'B'));
   mySymbolEl.innerHTML = `<span class="stone-icon"></span>${mySymbol === 'B' ? t('blackFirst') : t('whiteSecond')}`;

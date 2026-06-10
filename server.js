@@ -145,9 +145,9 @@ io.on('connection', socket => {
   });
 
   // ── AI matchmaking ─────────────────────────────────────
-  socket.on('play-vs-ai', ({ difficulty = 'medium' }) => {
+  socket.on('play-vs-ai', ({ difficulty = 'medium', renju = true }) => {
     if (!onlineUsers.has(socket.id)) return;
-    const { roomId, room } = createAIRoom(socket, io, difficulty);
+    const { roomId, room } = createAIRoom(socket, io, difficulty, renju);
     if (onlineUsers.has(socket.id)) onlineUsers.get(socket.id).status = 'in-game';
     broadcastOnline();
 

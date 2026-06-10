@@ -630,6 +630,26 @@ h1 {
 .diff-btn[data-diff="medium"]:hover  { background: #ed8936; color: #1a1a2e; }
 .diff-btn[data-diff="hard"]:hover    { background: #fc8181; color: #1a1a2e; }
 
+/* ── Renju toggle ────────────────────────────────────────── */
+.renju-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 14px;
+  cursor: pointer;
+  color: #a0aec0;
+  font-size: 0.88rem;
+  user-select: none;
+}
+.renju-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #667eea;
+  cursor: pointer;
+}
+.renju-row:has(input:checked) { color: #e2e8f0; }
+
 /* ── Post-game buttons row ───────────────────────────────── */
 #post-game-btns {
   display: flex;
@@ -642,7 +662,7 @@ h1 {
 #board-header {
   display: flex;
   align-items: center;
-  width: calc(var(--cell) * 16); /* matches board total width (15 cols + 2×border) */
+  width: calc(var(--cell) * 15);
   min-height: 0;
 }
 /* Hide automatically when both children are hidden */
@@ -684,7 +704,6 @@ h1 {
   /* Grid lines through cell centres */
   /* Use pseudo-element overlay instead (see below) */
 
-  border: calc(var(--cell) / 2) solid var(--wood-light);
   border-radius: 6px;
   box-shadow: 0 6px 28px rgba(0,0,0,0.55), inset 0 0 0 2px rgba(0,0,0,0.25);
   position: relative;
