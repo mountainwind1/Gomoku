@@ -1,7 +1,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --cell: clamp(22px, calc((100vw - 48px) / 15), 40px);
+  --cell: clamp(22px, calc((100vw - 32px) / 15), 40px); /* desktop */
   --stone: calc(var(--cell) * 0.82);
   --wood-light: #dcb97a;
   --wood-dark:  #c8a45a;
@@ -367,6 +367,24 @@ h1 {
   gap: 12px;
   flex-wrap: nowrap;
   justify-content: center;
+}
+
+/* ── Mobile: board fills full screen width ───────────────── */
+@media (max-width: 600px) {
+  :root {
+    --cell: clamp(20px, calc(100vw / 15), 40px); /* use full viewport width */
+  }
+  body {
+    overflow-x: hidden; /* prevent scroll from board overflow */
+  }
+  #board {
+    margin-inline: -16px; /* break out of body padding */
+    border-radius: 0;
+  }
+  #board-header {
+    margin-inline: -16px; /* align header with board */
+    padding-inline: 8px;
+  }
 }
 
 @media (max-width: 460px) {
