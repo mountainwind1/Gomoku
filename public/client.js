@@ -536,6 +536,66 @@ socket.on('move-undone', ({ board: newBoard, currentTurn, lastMoveIndex: lmi }) 
 // ── Show modal on load ─────────────────────────────────────
 showModal();
 
+// ── Board themes ────────────────────────────────────────────
+const THEMES = [
+  { id: 'wood',     dot: 'linear-gradient(135deg,#dcb97a,#c8a45a)' },
+  { id: 'rosewood', dot: 'linear-gradient(135deg,#8b3c1c,#5c2008)' },
+  { id: 'slate',    dot: 'linear-gradient(135deg,#3d5462,#1e2d38)' },
+  { id: 'night',    dot: 'linear-gradient(135deg,#1a2840,#070c16)' },
+  { id: 'bamboo',   dot: 'linear-gradient(135deg,#8db570,#5a7e42)' },
+];
+const THEME_I18N = { wood: 'themeWood', rosewood: 'themeRosewood', slate: 'themeSlate', night: 'themeNight', bamboo: 'themeBamboo' };
+
+function applyTheme(id) {
+  boardEl.dataset.theme = id;
+  localStorage.setItem('gomoku-theme', id);
+  document.querySelectorAll('.theme-item').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.theme === id);
+  });
+}
+
+(function initThemePanel() {
+  const panel  = document.getElementById('theme-panel');
+  const toggle = document.getElementById('theme-toggle');
+  const menu   = document.getElementById('theme-menu');
+
+  THEMES.forEach(({ id, dot }) => {
+    const btn    = document.createElement('button');
+    btn.className    = 'theme-item';
+    btn.dataset.theme = id;
+
+    const dotEl  = document.createElement('span');
+    dotEl.className = 'theme-dot';
+    dotEl.style.background = dot;
+
+    const nameEl = document.createElement('span');
+    nameEl.dataset.i18n  = THEME_I18N[id];
+    nameEl.textContent   = t(THEME_I18N[id]);
+
+    btn.appendChild(dotEl);
+    btn.appendChild(nameEl);
+    btn.addEventListener('click', () => {
+      applyTheme(id);
+      menu.hidden = true;
+      panel.classList.remove('open');
+    });
+    menu.appendChild(btn);
+  });
+
+  toggle.addEventListener('click', e => {
+    e.stopPropagation();
+    const isOpen = !menu.hidden;
+    menu.hidden = isOpen;
+    panel.classList.toggle('open', !isOpen);
+  });
+  document.addEventListener('click', () => {
+    menu.hidden = true;
+    panel.classList.remove('open');
+  });
+
+  applyTheme(localStorage.getItem('gomoku-theme') || 'wood');
+})();
+
 // ── Confetti ───────────────────────────────────────────────
 function launchConfetti() {
   const canvas = document.getElementById('confetti-canvas');

@@ -126,10 +126,16 @@
     <button id="undo-btn" hidden data-i18n="undoMove">悔棋</button>
   </div>
 
-  <div id="board"></div>
+  <div id="board" data-theme="wood"></div>
 
   <div id="post-game-btns">
     <button id="play-again-btn" hidden data-i18n="playAgain">再来一局</button>
+  </div>
+
+  <!-- ── Theme switcher (bottom-left) ─────────────────────── -->
+  <div id="theme-panel">
+    <button id="theme-toggle">🎨</button>
+    <div id="theme-menu" hidden></div>
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
