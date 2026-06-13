@@ -140,8 +140,10 @@ async function main() {
     // Ensure it's human's turn first
     if (gs.symbol === 'W') await waitFor(s, 'move-made', 2000); // AI(B) moves first
 
-    // Human makes a move, wait for AI response
-    s.emit('make-move', { index: 112 });
+    // Human makes a move, wait for AI response.
+    // If human is White, AI(B) already opened at center 112 — play elsewhere.
+    const humanIdx = gs.symbol === 'B' ? 112 : 113;
+    s.emit('make-move', { index: humanIdx });
     await waitFor(s, 'move-made', 2000); // human move
     await waitFor(s, 'move-made', 2000); // AI response
 

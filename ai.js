@@ -130,13 +130,24 @@ function evalBoard(game, aiSym, oppSym) {
 }
 
 // ── Candidate ordering ───────────────────────────────────────
+// Filter by isValidMove (not just emptiness) so forbidden Black moves are
+// never proposed — otherwise the server could pick one, makeMove rejects it,
+// and the AI's turn silently stalls.
 function orderedCandidates(game, aiSym, oppSym, topN = 20) {
   return getCandidates(game)
-    .filter(i => game.board[i] === null)
+    .filter(i => game.isValidMove(i))
     .map(i => ({ i, s: cellScore(game, i, aiSym, oppSym) }))
     .sort((a, b) => b.s - a.s)
     .slice(0, topN)
     .map(x => x.i);
+}
+
+// First legal move on the board, or -1 if none exists. Ultimate fallback.
+function firstLegalMove(game) {
+  for (let i = 0; i < TOTAL; i++) {
+    if (game.board[i] === null && game.isValidMove(i)) return i;
+  }
+  return -1;
 }
 
 // ── Minimax with alpha-beta ──────────────────────────────────
@@ -199,9 +210,7 @@ function easyMove(game) {
     else if (s === best) picks.push(idx);
   }
   if (picks.length) return picks[Math.floor(Math.random() * picks.length)];
-  // Fallback
-  const any = cands.filter(i => game.isValidMove(i));
-  return any[Math.floor(Math.random() * any.length)] ?? 0;
+  return firstLegalMove(game);
 }
 
 // ── Medium: depth-2 minimax with threat awareness ────────────
@@ -295,11 +304,14 @@ function hardMove(game) {
 
 // ── Public API ───────────────────────────────────────────────
 function getMove(game, difficulty) {
+  let idx;
   switch (difficulty) {
-    case 'easy':   return easyMove(game);
-    case 'hard':   return hardMove(game);
-    default:       return mediumMove(game); // 'medium' + any unknown
+    case 'easy':   idx = easyMove(game);   break;
+    case 'hard':   idx = hardMove(game);   break;
+    default:       idx = mediumMove(game); break; // 'medium' + any unknown
   }
+  // Guarantee a legal move so the server never stalls on a rejected index.
+  return game.isValidMove(idx) ? idx : firstLegalMove(game);
 }
 
 module.exports = { getMove };
