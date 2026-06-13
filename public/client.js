@@ -538,13 +538,10 @@ showModal();
 
 // ── Board themes ────────────────────────────────────────────
 const THEMES = [
-  { id: 'wood',     dot: 'linear-gradient(135deg,#dcb97a,#c8a45a)' },
-  { id: 'rosewood', dot: 'linear-gradient(135deg,#8b3c1c,#5c2008)' },
-  { id: 'slate',    dot: 'linear-gradient(135deg,#3d5462,#1e2d38)' },
-  { id: 'night',    dot: 'linear-gradient(135deg,#1a2840,#070c16)' },
-  { id: 'bamboo',   dot: 'linear-gradient(135deg,#8db570,#5a7e42)' },
+  { id: 'wood',  dot: 'linear-gradient(135deg,#dcb97a,#c8a45a)' },
+  { id: 'clean', dot: 'linear-gradient(135deg,#dde1e8,#c8cdd6)' },
 ];
-const THEME_I18N = { wood: 'themeWood', rosewood: 'themeRosewood', slate: 'themeSlate', night: 'themeNight', bamboo: 'themeBamboo' };
+const THEME_I18N = { wood: 'themeWood', clean: 'themeClean' };
 
 function applyTheme(id) {
   boardEl.dataset.theme = id;

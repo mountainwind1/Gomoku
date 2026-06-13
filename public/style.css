@@ -715,10 +715,6 @@ h1 {
 
   /* Wood texture */
   background-color: var(--wood-light);
-  background-image:
-    linear-gradient(135deg, var(--wood-dark) 25%, transparent 25%),
-    linear-gradient(-135deg, var(--wood-dark) 25%, transparent 25%);
-  background-size: calc(var(--cell) * 2) calc(var(--cell) * 2);
 
   /* Grid lines through cell centres */
   /* Use pseudo-element overlay instead (see below) */
@@ -861,96 +857,13 @@ h1 {
 
 /* ── Board themes ────────────────────────────────────────── */
 
-/* Rosewood: deep mahogany grain */
-#board[data-theme="rosewood"] {
-  background-color: #6b2c0d;
-  background-image:
-    linear-gradient(108deg, #8b3c1c 28%, transparent 28%),
-    linear-gradient(-72deg,  #8b3c1c 28%, transparent 28%),
-    linear-gradient(108deg,  transparent 72%, #7a3015 72%),
-    linear-gradient(-72deg,  transparent 72%, #7a3015 72%);
-  background-size: calc(var(--cell) * 1.6) calc(var(--cell) * 1.6);
-  --board-line: rgba(0,0,0,0.42);
-  --board-star: rgba(255,195,130,0.70);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.72), inset 0 0 0 2px rgba(0,0,0,0.45);
-}
-
-/* Slate: cool blue-grey stone */
-#board[data-theme="slate"] {
-  background-color: #2e3f4a;
-  background-image:
-    linear-gradient(135deg, rgba(255,255,255,0.028) 25%, transparent 25%),
-    linear-gradient(-135deg, rgba(255,255,255,0.028) 25%, transparent 25%),
-    linear-gradient(160deg, #3d5462 0%, #263340 100%);
-  background-size: calc(var(--cell) * 2) calc(var(--cell) * 2),
-                   calc(var(--cell) * 2) calc(var(--cell) * 2),
-                   100% 100%;
-  --board-line: rgba(185,220,255,0.22);
-  --board-star: rgba(185,220,255,0.55);
-  box-shadow: 0 6px 28px rgba(0,0,0,0.68), inset 0 0 0 1px rgba(185,220,255,0.1);
-}
-
-/* Night: deep space with glowing neon grid */
-#board[data-theme="night"] {
-  background-color: #070c16;
-  background-image:
-    radial-gradient(ellipse 60% 45% at 28% 28%, rgba(20,52,110,0.65) 0%, transparent 100%),
-    radial-gradient(ellipse 55% 60% at 74% 72%, rgba(10,32,85,0.50) 0%, transparent 100%);
-  --board-line: rgba(56,142,255,0.52);
-  --board-star: #5aabff;
-  box-shadow: 0 8px 36px rgba(0,0,0,0.9), 0 0 48px rgba(20,80,210,0.16),
-              inset 0 0 0 1px rgba(56,142,255,0.14);
-}
-
-/* Night: blurred glow layer behind sharp grid lines */
-#board[data-theme="night"]::before {
-  content: '';
-  position: absolute;
-  top:    calc(var(--cell) / 2);
-  left:   calc(var(--cell) / 2);
-  right:  calc(var(--cell) / 2 - 1px);
-  bottom: calc(var(--cell) / 2 - 1px);
-  pointer-events: none;
-  background-image:
-    repeating-linear-gradient(to right,  rgba(56,142,255,0.22) 0, rgba(56,142,255,0.22) 4px, transparent 4px, transparent var(--cell)),
-    repeating-linear-gradient(to bottom, rgba(56,142,255,0.22) 0, rgba(56,142,255,0.22) 4px, transparent 4px, transparent var(--cell));
-  background-size: var(--cell) var(--cell);
-  background-repeat: repeat;
-  filter: blur(5px);
-}
-
-/* Bamboo: fresh green with bamboo node marks */
-#board[data-theme="bamboo"] {
-  background-color: #7a9960;
-  background-image:
-    /* bamboo segment nodes every 5 cells */
-    repeating-linear-gradient(
-      180deg,
-      transparent 0,
-      transparent calc(var(--cell) * 5 - 4px),
-      rgba(0,0,0,0.18)     calc(var(--cell) * 5 - 4px),
-      rgba(0,0,0,0.18)     calc(var(--cell) * 5 - 2px),
-      rgba(255,255,255,0.1) calc(var(--cell) * 5 - 2px),
-      rgba(255,255,255,0.1) calc(var(--cell) * 5),
-      transparent          calc(var(--cell) * 5)
-    ),
-    /* subtle vertical fiber */
-    repeating-linear-gradient(
-      90deg,
-      rgba(0,0,0,0.03) 0, rgba(0,0,0,0.03) 2px,
-      transparent 2px, transparent 18px
-    ),
-    /* base colour variation */
-    linear-gradient(180deg,
-      #8db570 0%, #7a9960 25%, #6e8c54 50%, #7a9960 75%, #8db570 100%
-    );
-  background-size:
-    100% calc(var(--cell) * 5),
-    100% 100%,
-    100% calc(var(--cell) * 10);
-  --board-line: rgba(0,0,0,0.38);
-  --board-star: rgba(30,60,10,0.65);
-  box-shadow: 0 6px 24px rgba(0,0,0,0.52), inset 0 0 0 2px rgba(0,0,0,0.18);
+/* Clean: light minimal grid */
+#board[data-theme="clean"] {
+  background-color: #f2f4f7;
+  background-image: none;
+  --board-line: rgba(180,188,200,0.6);
+  --board-star: rgba(140,150,165,0.7);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(180,188,200,0.5);
 }
 
 /* ── Theme switcher panel (fixed bottom-left) ────────────── */
