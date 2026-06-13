@@ -56,6 +56,7 @@ const TRANSLATIONS = {
     boardTheme:         '棋盘风格',
     themeWood:          '经典木纹',
     themeClean:         '清爽',
+    themeDust:          '沙漠',
   },
   en: {
     title:              'Gomoku',
@@ -114,6 +115,7 @@ const TRANSLATIONS = {
     boardTheme:         'Board Style',
     themeWood:          'Classic Wood',
     themeClean:         'Clean',
+    themeDust:          'Desert',
   },
   ja: {
     title:              '五目並べ',
@@ -172,6 +174,7 @@ const TRANSLATIONS = {
     boardTheme:         '盤面スタイル',
     themeWood:          '木目',
     themeClean:         'クリーン',
+    themeDust:          '砂漠',
   },
   ms: {
     title:              'Gomoku',
@@ -230,6 +233,7 @@ const TRANSLATIONS = {
     boardTheme:         'Gaya Papan',
     themeWood:          'Kayu Klasik',
     themeClean:         'Bersih',
+    themeDust:          'Gurun',
   },
   vi: {
     title:              'Cờ Gomoku',
@@ -288,6 +292,7 @@ const TRANSLATIONS = {
     boardTheme:         'Kiểu Bàn Cờ',
     themeWood:          'Gỗ Cổ Điển',
     themeClean:         'Sạch Sẽ',
+    themeDust:          'Sa Mạc',
   },
   th: {
     title:              'โกะโมกุ',
@@ -346,6 +351,7 @@ const TRANSLATIONS = {
     boardTheme:         'รูปแบบกระดาน',
     themeWood:          'ไม้คลาสสิก',
     themeClean:         'สะอาด',
+    themeDust:          'ทะเลทราย',
   },
 };
 

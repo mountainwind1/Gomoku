@@ -866,6 +866,22 @@ h1 {
   box-shadow: 0 2px 12px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(180,188,200,0.5);
 }
 
+/* Dust: pre-designed desert board image (own grid + stars + frame).
+   Image is a 15-line board with ~4.7%..95.2% grid span; scale to 103.1%
+   and centre so its grid lands exactly on the cell centres (3.33%..96.67%)
+   where stones are placed. The decorative frame is clipped a hair — fine. */
+#board[data-theme="dust"] {
+  background-color: #d09a5e;
+  background-image: url('dust.png');
+  background-size: 103.1% 103.1%;
+  background-position: center;
+  background-repeat: no-repeat;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.5);
+}
+/* The image already carries the grid and star points — suppress the CSS ones */
+#board[data-theme="dust"]::after        { display: none; }
+#board[data-theme="dust"] .cell.star::after { display: none; }
+
 /* ── Theme switcher panel (fixed bottom-left) ────────────── */
 #theme-panel {
   position: fixed;

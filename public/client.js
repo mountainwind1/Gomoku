@@ -540,8 +540,9 @@ showModal();
 const THEMES = [
   { id: 'wood',  dot: 'linear-gradient(135deg,#dcb97a,#c8a45a)' },
   { id: 'clean', dot: 'linear-gradient(135deg,#dde1e8,#c8cdd6)' },
+  { id: 'dust',  dot: 'linear-gradient(135deg,#d6a064,#b87a3c)' },
 ];
-const THEME_I18N = { wood: 'themeWood', clean: 'themeClean' };
+const THEME_I18N = { wood: 'themeWood', clean: 'themeClean', dust: 'themeDust' };
 
 function applyTheme(id) {
   boardEl.dataset.theme = id;
